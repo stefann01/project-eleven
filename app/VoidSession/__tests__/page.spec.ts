@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { Target } from '../types';
+import { BASE_TARGETS_URL } from '@/app/constants';
 
 const TARGETS: Target[] = [
   {
@@ -62,11 +63,11 @@ const TARGETS_DETAILS = [
   },
 ];
 
-const TARGET_API = 'http://localhost:3210/targets';
-
 test.describe('Void Session', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route(TARGET_API, (route) => route.fulfill({ json: TARGETS }));
+    await page.route(BASE_TARGETS_URL, (route) =>
+      route.fulfill({ json: TARGETS }),
+    );
     await page.goto('/VoidSession');
   });
 
@@ -82,7 +83,7 @@ test.describe('Void Session', () => {
       resolveRoute = resolve;
     });
 
-    await page.route(TARGET_API, async (route) => {
+    await page.route(BASE_TARGETS_URL, async (route) => {
       await routeBlocked;
       await route.fulfill({ json: TARGETS });
     });
@@ -93,7 +94,7 @@ test.describe('Void Session', () => {
   });
 
   test('handles error state', async ({ page }) => {
-    await page.route(TARGET_API, (route) => route.abort());
+    await page.route(BASE_TARGETS_URL, (route) => route.abort());
     await page.goto('/VoidSession');
     await expect(
       page.getByText('Error loading targets. Please try again later.'),
